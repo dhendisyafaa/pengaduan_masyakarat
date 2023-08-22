@@ -3,13 +3,13 @@ import {
   createMasyarakat,
   deleteMasyarakat,
   editMasyarakat,
-  getAllMasyarakats,
+  getAllMasyarakat,
   getMasyarakatById,
 } from "../controllers/masyarakat.controller.js";
 
 const router = express.Router();
 
-router.get("/masyarakats", getAllMasyarakats);
+router.get("/masyarakat", getAllMasyarakat);
 router.get("/masyarakat/:id", getMasyarakatById);
 router.post("/masyarakat", createMasyarakat);
 router.patch("/masyarakat/:id", editMasyarakat);
