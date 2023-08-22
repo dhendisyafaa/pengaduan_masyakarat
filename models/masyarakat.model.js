@@ -7,23 +7,30 @@ const { DataTypes } = Sequelize;
 const Masyarakat = db.define(
   "masyarakat",
   {
+    uuid: {
+      type: DataTypes.STRING,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     nik: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.CHAR,
       primaryKey: true,
     },
     nama: DataTypes.STRING,
     username: DataTypes.STRING,
     password: DataTypes.STRING,
-    telp: DataTypes.STRING,
+    telp: DataTypes.CHAR,
   },
   {
     freezeTableName: true,
   }
 );
 
-// Masyarakat.belongsTo(Pengaduan);
-// Masyarakat.hasMany(Pengaduan, { foreignKey: "nik" });
-// Pengaduan.belongsTo(Masyarakat, { foreignKey: "nik" });
+Masyarakat.hasMany(Pengaduan, { foreignKey: "nik" });
+Pengaduan.belongsTo(Masyarakat, { foreignKey: "nik" });
 
 export default Masyarakat;
 

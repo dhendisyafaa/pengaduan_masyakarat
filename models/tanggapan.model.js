@@ -11,10 +11,14 @@ const Tanggapan = db.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    id_pengaduan: DataTypes.INTEGER,
-    tgl_tanggapan: DataTypes.DATA,
-    tanggapan: DataTypes.STRING,
     id_petugas: DataTypes.INTEGER,
+    id_pengaduan: DataTypes.INTEGER,
+    // nama_petugas: DataTypes.STRING,
+    tgl_tanggapan: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    tanggapan: DataTypes.STRING,
   },
   {
     freezeTableName: true,
