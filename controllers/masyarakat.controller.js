@@ -1,95 +1,112 @@
+import argon2 from "argon2";
 import Masyarakat from "../models/masyarakat.model.js";
 import Pengaduan from "../models/pengaduan.model.js";
 
-export const getAllMasyarakats = async (req, res) => {
+export const getAllMasyarakat = async (req, res) => {
   try {
-    const response = await Masyarakat.findAll();
-    res.json(response);
+    const response = await Masyarakat.findAll({
+      attributes: ["uuid", "nik", "nama", "username", "telp"],
+      // include: [
+      //   {
+      //     model: Pengaduan,
+      //     // attributes: ["name", "id"],
+      //   },
+      // ],
+    });
+    res.status(200).json(response);
   } catch (error) {
-    console.log(error.message);
+    res.status(500).json({ message: error });
   }
 };
 
 export const getMasyarakatById = async (req, res) => {
   try {
     const response = await Masyarakat.findOne({
+      attributes: ["uuid", "nik", "nama", "username", "telp"],
       where: {
-        id: req.params.id,
+        uuid: req.params.id,
       },
-      // include: [{ model: Pengaduan }],
+      include: [{ model: Pengaduan }],
     });
-    if (!response) return res.status(404).json({ message: "No data found!" });
+    if (!response)
+      return res.status(404).json({ message: "Pengguna tidak ditemukan!" });
     res.json(response);
   } catch (error) {
-    console.log(error.message);
+    res.status(500).json({ message: error });
   }
 };
 
 export const createMasyarakat = async (req, res) => {
-  //   console.log(req);
+  const { nik, nama, username, password, telp } = req.body;
+
+  const hashPassword = await argon2.hash(password);
   try {
     await Masyarakat.create({
-      nik: req.body.nik,
-      nama: req.body.nama,
-      username: req.body.username,
-      password: req.body.password,
-      telp: req.body.telp,
+      nik: nik,
+      nama: nama,
+      username: username,
+      password: hashPassword,
+      telp: telp,
     });
-    res.status(201).json({ message: "Berhasil register!", data: req.body });
+    res.status(201).json({ message: "Berhasil register!" });
   } catch (error) {
-    console.log(error.message);
+    res.status(500).json({ message: error });
   }
 };
 
 export const editMasyarakat = async (req, res) => {
+  const user = await Masyarakat.findOne({
+    where: {
+      uuid: req.params.id,
+    },
+  });
+  if (!user) return res.status(404).json({ message: "User tidak ditemukan!" });
+
+  const { nik, nama, username, password, telp } = req.body;
+  let hashPassword;
+  if (password === "" || password === null) {
+    hashPassword = user.password;
+  } else {
+    hashPassword = await argon2.hash(password);
+  }
+
   try {
+    await Masyarakat.update(
+      {
+        nik: nik,
+        nama: nama,
+        username: username,
+        password: hashPassword,
+        telp: telp,
+      },
+      {
+        where: {
+          uuid: req.params.id,
+        },
+      }
+    );
+    res.status(201).json({ msg: "Berhasil memperbarui profil!" });
   } catch (error) {
-    console.log(error.message);
+    res.status(500).json({ message: error });
   }
 };
 
 export const deleteMasyarakat = async (req, res) => {
-  getMasyarakatById();
+  const user = await Masyarakat.findOne({
+    where: {
+      uuid: req.params.id,
+    },
+  });
+  if (!user)
+    return res.status(404).json({ message: "Pengguna tidak ditemukan!" });
   try {
     await Masyarakat.destroy({
       where: {
-        id: req.params.id,
+        uuid: req.params.id,
       },
     });
-    res.status(200).json({ message: "Account deleted successfully!" });
+    res.status(200).json({ message: "Berhasil menghapus akun!" });
   } catch (error) {
-    console.log(error.message);
+    res.status(500).json({ message: error });
   }
 };
-
-// export const getAllMasyarakats = async (req, res) => {
-//     try {
-//       res.json({ message: "test" });
-//     } catch (error) {
-//       console.log(error.message);
-//     }
-//   };
-//   export const getMasyarakat = async (req, res) => {
-//     try {
-//     } catch (error) {
-//       console.log(error.message);
-//     }
-//   };
-//   export const createMasyarakat = async (req, res) => {
-//     try {
-//     } catch (error) {
-//       console.log(error.message);
-//     }
-//   };
-//   export const editMasyarakat = async (req, res) => {
-//     try {
-//     } catch (error) {
-//       console.log(error.message);
-//     }
-//   };
-//   export const deleteMasyarakat = async (req, res) => {
-//     try {
-//     } catch (error) {
-//       console.log(error.message);
-//     }
-//   };
