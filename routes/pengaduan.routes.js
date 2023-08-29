@@ -6,13 +6,14 @@ import {
   getAllPengaduan,
   getPengaduanById,
 } from "../controllers/pengaduan.controller.js";
+import { verifyMasyarakat } from "../middleware/AuthUser.middleware.js";
 
 const router = express.Router();
 
-router.get("/pengaduan", getAllPengaduan);
-router.get("/pengaduan/:id", getPengaduanById);
-router.post("/pengaduan", createPengaduan);
-router.patch("/pengaduan/:id", editPengaduan);
-router.delete("/pengaduan/:id", deletePengaduan);
+router.get("/pengaduan", verifyMasyarakat, getAllPengaduan);
+router.get("/pengaduan/:id", verifyMasyarakat, getPengaduanById);
+router.post("/pengaduan", verifyMasyarakat, createPengaduan);
+router.patch("/pengaduan/:id", verifyMasyarakat, editPengaduan);
+router.delete("/pengaduan/:id", verifyMasyarakat, deletePengaduan);
 
 export default router;
