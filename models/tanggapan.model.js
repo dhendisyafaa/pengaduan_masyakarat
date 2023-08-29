@@ -11,7 +11,7 @@ const Tanggapan = db.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    id_petugas: DataTypes.INTEGER,
+    id_petugas: DataTypes.STRING,
     id_pengaduan: DataTypes.INTEGER,
     // nama_petugas: DataTypes.STRING,
     tgl_tanggapan: {
