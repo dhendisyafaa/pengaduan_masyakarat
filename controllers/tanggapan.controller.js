@@ -27,6 +27,7 @@ export const getTanggapanById = async (req, res) => {
 };
 
 export const createTanggapan = async (req, res) => {
+  // console.log(req.body);
   try {
     await Tanggapan.create({
       tanggapan: req.body.tanggapan,
