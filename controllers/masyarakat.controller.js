@@ -73,11 +73,11 @@ export const editMasyarakat = async (req, res) => {
   try {
     await Masyarakat.update(
       {
-        nik: nik,
-        nama: nama,
-        username: username,
+        nik: nik || user.nik,
+        nama: nama || user.nama,
+        username: username || user.username,
         password: hashPassword,
-        telp: telp,
+        telp: telp || user.telp,
       },
       {
         where: {
