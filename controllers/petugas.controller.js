@@ -49,25 +49,33 @@ export const createPetugas = async (req, res) => {
 };
 
 export const editPetugas = async (req, res) => {
-  console.log(req.params);
   const user = await Petugas.findOne({
     where: {
-      id: req.params.id_petugas,
+      id_petugas: req.params.id,
     },
   });
   if (!user) return res.status(404).json({ message: "User tidak ditemukan!" });
+
+  const { nama_petugas, username, password, telp, level } = req.body;
+  let hashPassword;
+  if (password === "" || password === null) {
+    hashPassword = user.password;
+  } else {
+    hashPassword = await argon2.hash(password);
+  }
+
   try {
     await Petugas.update(
       {
-        nama_petugas: req.body?.nama_petugas || user.nama_petugas,
-        username: req.body?.username || user.username,
-        password: req.body?.password || user.password,
-        telp: req.body?.telp || user.telp,
-        level: req.body?.level || user.level,
+        nama_petugas: nama_petugas || user.nama_petugas,
+        username: username || user.username,
+        password: hashPassword,
+        telp: telp || user.telp,
+        level: level || user.level,
       },
       {
         where: {
-          id: req.params.id_petugas,
+          id_petugas: req.params.id,
         },
       }
     );
