@@ -42,11 +42,15 @@ export const createPengaduan = async (req, res) => {
     const fileName = file.md5 + ext;
     const url = `${req.protocol}://${req.get("host")}/images/${fileName}`;
     const allowedType = [".png", ".jpg", ".jpeg"];
+    const fileSize = file.data.length;
 
     if (!allowedType.includes(ext.toLowerCase()))
       return res.status(422).json({
         message: "Invalid image!",
       });
+
+    if (fileSize > 5000000)
+      return res.status(422).json({ msg: "Image must be less than 5 MB" });
 
     file.mv(`./public/images/${fileName}`, async (err) => {
       if (err)
@@ -66,7 +70,7 @@ export const createPengaduan = async (req, res) => {
             .json({ message: "Pengaduan berhasil diajukan!", created: result });
         });
       } catch (error) {
-        console.log(error);
+        res.status(500).json({ message: error });
       }
     });
   } catch (error) {
@@ -75,7 +79,55 @@ export const createPengaduan = async (req, res) => {
 };
 
 export const editPengaduan = async (req, res) => {
+  const pengaduan = await Pengaduan.findOne({
+    where: {
+      id_pengaduan: req.params.id,
+    },
+  });
+  if (!pengaduan)
+    return res.status(404).json({ message: "Pengguna tidak ditemukan!" });
+
+  let fileName;
+  if (req.files === null) {
+    fileName = pengaduan.image;
+  } else {
+    const file = req.files.image;
+    const ext = path.extname(file.name);
+    fileName = file.md5 + ext;
+
+    const allowedType = [".png", ".jpg", ".jpeg"];
+    const fileSize = file.data.length;
+
+    if (!allowedType.includes(ext.toLowerCase()))
+      return res.status(422).json({
+        message: "Invalid image!",
+      });
+
+    if (fileSize > 5000000)
+      return res.status(422).json({ msg: "Image must be less than 5 MB" });
+
+    const filepath = `./public/images/${pengaduan.image}`;
+    fs.unlinkSync(filepath);
+
+    file.mv(`./public/images/${fileName}`, (err) => {
+      if (err) return res.status(500).json({ msg: err.message });
+    });
+  }
+
+  const isi_laporan = req.body.isi_laporan;
+  const status = "proses";
+  const url = `${req.protocol}://${req.get("host")}/images/${fileName}`;
+
   try {
+    await Pengaduan.update(
+      { image: fileName, url: url, isi_laporan: isi_laporan, status: status },
+      {
+        where: {
+          id_pengaduan: req.params.id,
+        },
+      }
+    );
+    res.status(200).json({ msg: "Pengaduan berhasil diubah!" });
   } catch (error) {
     res.status(500).json({ message: error });
   }
